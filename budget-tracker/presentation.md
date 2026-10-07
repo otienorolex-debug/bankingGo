@@ -16,8 +16,9 @@ The app helps users to:
 
 ## Slide 4 — Why this matters
 - It is designed for both literate and low-literacy users.
-- It supports English, Kiswahili, Yoruba, and Luganda.
+- It offers English, Kiswahili, Yoruba, Luganda, Mandarin Chinese, French, Dholuo, Kikuyu, Kikamba, and Ekegusii. The four Kenyan Indigenous-language packs are drafts that need community review.
 - It can read the active screen aloud when the device has a matching installed speech voice.
+- Users can ask questions by voice when their browser supports speech recognition and grants microphone permission; typing remains available.
 - The platform provides clear warnings before overspending.
 - It removes confusion and fear from everyday financial decisions.
 
@@ -29,9 +30,9 @@ I built BankingGo because many people in my community need a banking tool that i
 - A browser-only app is not tamper-proof. Users can inspect or change its source and local storage. Do not enter real banking credentials or customer data.
 - BankingGo is not a licensed bank, does not connect to a bank, and does not move real money. Transfers only move demo funds between demo wallet and savings.
 - The BankingGo helper uses local guided responses; it is not connected to a generative AI service.
-- Only four interface languages are translated in this prototype. A selector with 100+ names would not provide 100+ usable translations; those need professional review with native speakers and local communities.
+- Speech recognition may be processed by the browser provider. Users should never dictate PINs, passwords, or account numbers.
 - A real launch needs a secure backend, server-verified authentication, encryption, authorization, audit logs, monitoring, backups, incident response, independent penetration testing, and market-specific banking/payment partners and regulatory approval.
-- Languages must be reviewed with local speakers, including Indigenous-language communities; current prototype languages are English, Kiswahili, Yoruba, and Luganda.
+- The Dholuo, Kikuyu, Kikamba, and Ekegusii draft wording must be reviewed by fluent community speakers before financial use. Speech output and recognition depend on device/browser language support.
 - Copyright notice: © 2026 BankingGo. All rights reserved. A copyright notice does not by itself stop copying or hacking. Confirm the owner and obtain qualified legal advice before selling or licensing the product.
 
 ## Prototype Features Added

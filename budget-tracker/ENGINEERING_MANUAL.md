@@ -11,7 +11,6 @@ This manual is a map of the current implementation and a handover guide for engi
 - [index.html](index.html): page structure, forms, navigation labels, disclosure text, and accessible element IDs.
 - [index.js](index.js): browser-side app state, language selection, PIN demo, rendering, budget logic, local persistence, savings, transfers, and guided help.
 - [style.css](style.css): colors, layout, controls, dashboard, chart, and responsive breakpoints.
-- [presentation.html](presentation.html): browser-viewable presentation slides.
 - [presentation.md](presentation.md): presentation outline and speaker notes.
 
 There is no package manager, build pipeline, server, database, test suite, payment processor, bank integration, or production AI service in this folder.
@@ -25,19 +24,20 @@ The current test flow is: create a local demo profile, add an expense, set a goa
 ## 4. Page Map: `index.html`
 
 - [index.html](index.html#L6): meta Content Security Policy. This is a limited browser-level policy for the static demo. Production must send security headers from the web server; a meta policy does not replace those headers or server security.
-- [index.html](index.html#L24): language selector. Only English, Kiswahili, Yoruba, and Luganda have interface strings in the current script.
-- [index.html](index.html#L31): read-screen and stop-reading controls. They use speech voices installed on the user's device; they are not guaranteed to exist for every language or device.
-- [index.html](index.html#L37): persistent demo and language disclosure. It warns that this app is not connected to a bank and that guided help currently responds in English.
-- [index.html](index.html#L57): account access screen container.
-- [index.html](index.html#L70): new demo profile form: name, phone, six-digit PIN, user-entered starting balance, budget, currency, and interface language.
-- [index.html](index.html#L127): returning-user sign-in form. The phone and PIN are checked against the locally stored demo credential hash.
-- [index.html](index.html#L143): dashboard container; it is shown after local profile creation or a successful local sign-in.
-- [index.html](index.html#L193): expense form and category selection.
-- [index.html](index.html#L258): savings goal form; stores a target amount and shows progress.
-- [index.html](index.html#L271): wallet-to-savings demo transfer form. It changes only the values held by this browser.
-- [index.html](index.html#L280): spending-by-category chart container; JavaScript fills it from expense transactions.
-- [index.html](index.html#L295): recent activity list container.
-- [index.html](index.html#L301): copyright notice. Confirm the actual rights owner and the correct notice before publishing or licensing the product.
+- [index.html](index.html#L24): ten-option language selector. Four Kenyan Indigenous-language options are marked as unreviewed drafts.
+- [index.html](index.html#L37): screen read-aloud, stop-reading, and general help controls.
+- [index.html](index.html#L43): persistent demo and language disclosure.
+- [index.html](index.html#L64): account access screen container.
+- [index.html](index.html#L77): new demo profile form: name, phone, six-digit PIN, starting balance, budget, currency, and language.
+- [index.html](index.html#L139): returning-user sign-in form; checks the locally stored demo credential hash.
+- [index.html](index.html#L155): dashboard container.
+- [index.html](index.html#L192): expense form and category selection.
+- [index.html](index.html#L237): voice question button. Browser speech recognition support and microphone permission are required; the adjacent notice warns speech may be processed by the browser provider.
+- [index.html](index.html#L249): savings goal form.
+- [index.html](index.html#L258): demo wallet-to-savings transfer form.
+- [index.html](index.html#L269): spending-by-category chart container.
+- [index.html](index.html#L274): recent activity list container.
+- [index.html](index.html#L279): copyright notice; confirm ownership and notice before publishing or licensing.
 
 HTML `id` attributes are the link between the page and the JavaScript. Renaming an ID requires updating the corresponding lookup in [index.js](index.js#L3).
 
@@ -48,65 +48,63 @@ HTML `id` attributes are the link between the page and the JavaScript. Renaming 
 - [index.js](index.js#L1): waits for the HTML document to be ready before looking up controls and registering event handlers.
 - [index.js](index.js#L2): localStorage key for the versioned demo profile.
 - [index.js](index.js#L3): caches page elements by ID so event handlers and render functions can update them.
-- [index.js](index.js#L24): current hand-written translations. Additions need corresponding strings for each currently supported language; this is not a 100-language translation system.
-- [index.js](index.js#L52): currency display formatters. These format a number in a selected currency; they do not perform exchange-rate conversion.
-- [index.js](index.js#L57): in-memory account state. Expenses and transfers mutate this object, then render functions update the screen.
-- [index.js](index.js#L58): attempts to load the existing demo profile from this browser.
+- [index.js](index.js#L23): base hand-written UI translations.
+- [index.js](index.js#L85): per-language assistant labels, keywords, response templates, speech locales, and review flags.
+- [index.js](index.js#L154): localized accessibility-control and microphone privacy labels.
+- [index.js](index.js#L181): loads a local demo profile from browser storage.
 
 ### Storage and local PIN demo
 
-- [index.js](index.js#L60): formats a numeric value using `Intl.NumberFormat` and the selected currency.
-- [index.js](index.js#L64): reads and minimally version-checks localStorage data. LocalStorage is user-editable and must never be trusted for real money or authorization.
-- [index.js](index.js#L74): writes changed demo profile and transactions to localStorage.
-- [index.js](index.js#L85): writes a status message and error styling to a form status element.
-- [index.js](index.js#L90): switches between account creation and sign-in forms.
-- [index.js](index.js#L101): converts cryptographic bytes to hexadecimal text for storage.
-- [index.js](index.js#L105): derives a salted PBKDF2-SHA-256 PIN hash using Web Crypto. It avoids saving the PIN as plain text, but browser-side hashing does not secure editable localStorage or make a six-digit PIN strong enough for production.
+ [index.js](index.js#L191): writes changed demo profile, language, and transactions to localStorage.
+ [index.js](index.js#L85): writes a status message and error styling to a form status element.
+ [index.js](index.js#L90): switches between account creation and sign-in forms.
+ [index.js](index.js#L101): converts cryptographic bytes to hexadecimal text for storage.
+- [index.js](index.js#L222): derives a salted PBKDF2-SHA-256 PIN hash using Web Crypto. Browser-side hashing does not secure editable localStorage or make a six-digit PIN strong enough for production.
 
 The saved demo record contains a phone number, PIN salt and hash, profile values, and transactions. It is one profile per browser storage key. There is no server identity, session revocation, multi-device access, recovery, rate limiting, or operator/admin account.
 
 ### Rendering and calculations
 
-- [index.js](index.js#L113): builds transaction list nodes using `textContent`, avoiding insertion of transaction names as HTML.
-- [index.js](index.js#L138): totals expense transactions by category and creates proportional chart bars. Transfers are excluded from spending.
-- [index.js](index.js#L174): updates balance, budget, savings progress, warnings, activity, and chart from current in-memory state.
-- [index.js](index.js#L209): applies a supported language to page elements marked with `data-key` and updates the selected language controls.
-- [index.js](index.js#L222): displays the dashboard after profile creation or successful sign-in.
+- [index.js](index.js#L230): builds transaction list nodes with `textContent`.
+- [index.js](index.js#L255): totals expense transactions by category; transfers are excluded.
+- [index.js](index.js#L291): updates balance, budget, savings progress, warnings, activity, and chart.
+- [index.js](index.js#L326): applies selected UI language, persists it for the local profile, and shows a draft-review notice where needed.
 
 Expense entry rejects invalid or over-balance amounts, lowers the demo wallet balance, raises total spending, and records an expense. A wallet-to-savings transfer lowers available demo funds and raises demo savings, but does not increase spending. See [index.js](index.js#L358) and [index.js](index.js#L384).
 
 ### Help and accessibility
 
-- [index.js](index.js#L229): appends text-only chat messages to the guided help panel.
-- [index.js](index.js#L237): local keyword-based replies about budgets and savings. This is scripted help, not a generative AI agent and not financial advice.
-- [index.js](index.js#L249): sends a user question and displays the matching local reply.
-- [index.js](index.js#L257): wires account-mode and language controls.
-- [index.js](index.js#L266): reads visible screen text aloud only when a matching speech voice is installed. The browser/device controls audio; no audio service is connected.
-- [index.js](index.js#L302): sends assistant text from the send button or Enter key.
+- [index.js](index.js#L362): matches helper questions against a small selected-language keyword list.
+- [index.js](index.js#L368): fills selected-language demo response templates for savings, budget, balance, and help. This is scripted help, not a generative AI agent or financial advice.
+- [index.js](index.js#L383): speaks screen or assistant text only when the device has a matching voice.
+- [index.js](index.js#L408): displays user text and the localized helper reply.
+- [index.js](index.js#L448): requests browser speech recognition in the selected locale. Availability and processing vary by browser/provider; users should not speak credentials.
+- [index.js](index.js#L502): reads the active screen aloud.
+- [index.js](index.js#L513): connects the speak button to voice recognition.
 
 ### User actions
 
-- [index.js](index.js#L308): validates the new profile form, creates a salted PIN hash, initializes state, saves locally, and opens the dashboard.
-- [index.js](index.js#L339): checks the phone and PIN hash for local demo sign-in, restores local state, and opens the dashboard.
-- [index.js](index.js#L358): handles adding an expense and prevents spending above the available demo wallet balance.
-- [index.js](index.js#L374): saves a savings target and refreshes progress.
-- [index.js](index.js#L384): validates and performs an internal demo transfer to savings.
-- [index.js](index.js#L398): locks the current screen and returns to the local sign-in form. This is a UI lock, not a server session logout.
-- [index.js](index.js#L408): chooses create or sign-in mode at startup based on whether a local demo profile exists.
+- [index.js](index.js#L520): creates and saves a local demo profile.
+- [index.js](index.js#L551): signs in to the local demo profile.
+- [index.js](index.js#L570): records an expense and rejects over-balance amounts.
+- [index.js](index.js#L586): saves a savings target.
+- [index.js](index.js#L596): performs a demo wallet-to-savings transfer.
+- [index.js](index.js#L610): locks the UI and returns to local sign-in; it is not server logout.
+- [index.js](index.js#L620): selects create or sign-in mode at startup.
 
 ## 6. Styling Map: `style.css`
 
 - [style.css](style.css#L1): global sizing reset and shared design variables.
-- [style.css](style.css#L236): visual treatment of the important demo disclosure.
-- [style.css](style.css#L246): account access tabs.
-- [style.css](style.css#L280): responsive savings and transfer layout.
-- [style.css](style.css#L332): category chart layout.
-- [style.css](style.css#L447): dashboard summary cards.
-- [style.css](style.css#L509): expense and help content columns.
-- [style.css](style.css#L563): scrolling help conversation area.
-- [style.css](style.css#L681): footer copyright presentation.
-- [style.css](style.css#L695): tablet and medium-width layout changes.
-- [style.css](style.css#L717): phone layout changes.
+- [style.css](style.css#L251): demo disclosure.
+- [style.css](style.css#L261): account access tabs.
+- [style.css](style.css#L295): savings and transfer layout.
+- [style.css](style.css#L347): category chart.
+- [style.css](style.css#L462): dashboard summary cards.
+- [style.css](style.css#L524): expense and help columns.
+- [style.css](style.css#L578): scrolling assistant conversation.
+- [style.css](style.css#L634): microphone privacy notice.
+- [style.css](style.css#L722): footer.
+- [style.css](style.css#L736): tablet breakpoint; [style.css](style.css#L758) contains phone rules.
 
 ## 7. Current Capabilities and Limits
 
@@ -115,12 +113,12 @@ Expense entry rejects invalid or over-balance amounts, lowers the demo wallet ba
 | Accounts | One local profile with a PIN hash and lock/sign-in screen | No verified identity, production login, account recovery, or multi-device sync |
 | Money | Editable demo balance, budgets, expenses, savings goals, and demo transfers | No ledger, deposits, withdrawals, settlement, or real bank transfer |
 | Security | Basic form validation, salted PIN derivation, safe text rendering, and a restrictive CSP meta tag | No server-side authorization, tamper protection, encrypted database, rate limiting, fraud controls, or security monitoring |
-| Languages | Four hand-written interface languages and device-native screen reading when available | Not 100+ languages, not every Indigenous language, no professional review, and no guaranteed speech voice |
-| Assistant | Local rule-based replies for a small set of money questions | No live AI model, account support agent, escalation, or connection to a bank |
+| Languages and speech | Ten selectable options; Chinese and French copy; Dholuo, Kikuyu, Kikamba, and Ekegusii draft packs; optional selected-locale speech | Indigenous-language drafts are unreviewed; no guaranteed recognition or speech voice; not 100+ reviewed languages |
+| Assistant | Local keyword replies to typed or spoken questions; optional spoken answers | No live AI model, customer-care team, general language understanding, or bank connection |
 | Currencies | Ten currency display formats | No FX conversion, pricing, local settlement, or market-specific currency rules |
 | Admin | No operator tools | No user administration, permissions, audit reports, support queue, or system configuration |
 
-A language name in a selector is not a usable language pack. Each supported language needs complete translated interface and help content, local financial terminology review, accessibility testing, and ongoing ownership for updates. The four available translations should also be checked by fluent speakers before public use.
+A language name in a selector is not proof of full support. The Dholuo, Kikuyu, Kikamba, and Ekegusii text is draft wording that must be reviewed by speakers from those communities before financial use. Speech recognition may be handled by browser services; never dictate PINs, passwords, or account numbers.
 
 ## 8. Engineer Handover: Production Architecture
 
@@ -137,9 +135,8 @@ Do not make the current static app handle real customer accounts or money. A pro
 
 Security improvements such as minification, obfuscation, or a copyright notice can raise friction but cannot prevent copying or protect browser-side balances. Copyright ownership, trademark registration, contributor agreements, and sale/licensing contracts need to be handled with appropriate legal advice.
 
-## 9. Presentation
+## 9. Presentation Notes
 
-- [presentation.html](presentation.html): open in a browser for the slides.
-- [presentation.md](presentation.md): editable outline and speaker notes.
+- [presentation.md](presentation.md): editable presentation outline and speaker notes. The standalone presentation HTML was removed to keep this folder focused on the GitHub Pages app.
 
-The presentation describes the inclusion problem, the intended users, current prototype features, and launch/security work still required. Keep claims aligned with the limits in section 7.
+Keep presentation claims aligned with the prototype limits in section 7.

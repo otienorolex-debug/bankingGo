@@ -105,6 +105,13 @@ select {
   font-size: 0.82rem;
 }
 
+.language-review-note {
+  margin: 4px 4px 10px;
+  color: #83520a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .language-picker {
   display: flex;
   align-items: center;
@@ -192,6 +199,14 @@ select {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.nav-status {
+  min-height: 1.4rem;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 .main-layout {
@@ -601,6 +616,32 @@ select {
   font-weight: 700;
 }
 
+.speak-toggle {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.speak-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.voice-privacy-note {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+#voice-input-btn.listening {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
 .ai-input-row {
   display: flex;
   align-items: center;
@@ -724,6 +765,11 @@ select:focus-visible {
 
   .topbar-tools {
     justify-content: flex-start;
+  }
+
+  .language-picker {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .app-shell {
