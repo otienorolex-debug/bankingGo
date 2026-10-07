@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <title>BankingGo | Simple Banking for Everyone</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-area">
+        <div class="brand-mark">B</div>
+        <div>
+          <p class="eyebrow">Inclusive banking prototype</p>
+          <h1>BankingGo</h1>
+        </div>
+      </div>
+
+      <div class="topbar-tools">
+        <label class="language-picker">
+          <span>Language</span>
+          <select id="language-select">
+            <option value="en">English</option>
+            <option value="sw">Kiswahili</option>
+            <option value="yo">Yoruba</option>
+            <option value="lg">Luganda</option>
+          </select>
+        </label>
+        <button class="top-btn" type="button" id="read-screen-btn">Read screen</button>
+        <button class="top-btn" type="button" id="stop-reading-btn" disabled>Stop reading</button>
+        <button class="top-btn" type="button" id="help-btn">BankingGo help</button>
+      </div>
+    </header>
+
+    <div class="demo-notice" role="note">Demo only. No real bank connection or money. Interface translations: English, Kiswahili, Yoruba, and Luganda. Guided help currently responds in English. Never enter real credentials.</div>
+    <p id="speech-status" class="speech-status" role="status" aria-live="polite"></p>
+
+    <main class="main-layout">
+      <aside class="sidebar">
+        <div class="sidebar-box">
+          <p class="tiny-label">Mission</p>
+          <h3>Banking for everyone</h3>
+          <p class="muted">Simple, clear, and safe banking for people who want to save, spend wisely, and grow.</p>
+        </div>
+
+        <nav class="nav-menu">
+          <button class="nav-item active" type="button">Home</button>
+          <button class="nav-item" type="button">Wallet</button>
+          <button class="nav-item" type="button">Savings</button>
+          <button class="nav-item" type="button">Budget</button>
+          <button class="nav-item" type="button">Support</button>
+        </nav>
+      </aside>
+
+      <section id="auth-screen" class="screen active">
+        <div class="auth-card">
+          <div class="auth-header">
+            <p class="eyebrow" data-key="tagline">Open a simple account</p>
+            <h2 data-key="signupTitle">Create your BankingGo account</h2>
+            <p data-key="signupText">No confusing banking words. Just simple, safe, and clear tools for daily life.</p>
+          </div>
+
+          <div class="auth-modes" role="tablist" aria-label="Account access">
+            <button class="auth-mode active" id="create-mode" type="button" role="tab" aria-selected="true">Create account</button>
+            <button class="auth-mode" id="login-mode" type="button" role="tab" aria-selected="false">Sign in</button>
+          </div>
+
+          <form id="signup-form" class="auth-form">
+            <div class="field-row">
+              <label for="fullname" data-key="fullNameLabel">Full name</label>
+              <input id="fullname" type="text" placeholder="Jane Doe" required />
+            </div>
+
+            <div class="field-row split-row">
+              <div>
+                <label for="phone" data-key="phoneLabel">Phone number</label>
+                <input id="phone" type="tel" placeholder="+254 712 345 678" required />
+              </div>
+              <div>
+                <label for="pin" data-key="pinLabel">Choose a 6-digit PIN</label>
+                <input id="pin" type="password" inputmode="numeric" pattern="[0-9]{6}" placeholder="6 digits" minlength="6" maxlength="6" autocomplete="new-password" required />
+              </div>
+            </div>
+
+            <div class="field-row split-row">
+              <div>
+                <label for="bank-balance" data-key="balanceLabel">Starting balance</label>
+                <input id="bank-balance" type="number" min="0" step="10" placeholder="2500" required />
+              </div>
+              <div>
+                <label for="monthly-limit" data-key="budgetLabel">Monthly budget</label>
+                <input id="monthly-limit" type="number" min="0" step="50" placeholder="1800" required />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <label for="currency" data-key="currencyLabel">Currency</label>
+              <select id="currency">
+                <option value="USD">USD - US Dollar</option>
+                <option value="KES">KES - Kenyan Shilling</option>
+                <option value="JPY">JPY - Japanese Yen</option>
+                <option value="GBP">GBP - British Pound</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="NGN">NGN - Nigerian Naira</option>
+                <option value="INR">INR - Indian Rupee</option>
+                <option value="AED">AED - UAE Dirham</option>
+                <option value="CAD">CAD - Canadian Dollar</option>
+                <option value="ZAR">ZAR - South African Rand</option>
+              </select>
+            </div>
+
+            <div class="field-row">
+              <label for="language-onboard" data-key="appLanguageLabel">App language</label>
+              <select id="language-onboard">
+                <option value="en">English</option>
+                <option value="sw">Kiswahili</option>
+                <option value="yo">Yoruba</option>
+                <option value="lg">Luganda</option>
+              </select>
+            </div>
+
+            <button type="submit" class="primary-btn" data-key="createAccountBtn">Create account</button>
+          </form>
+
+          <form id="login-form" class="auth-form hidden" autocomplete="on">
+            <div class="field-row">
+              <label for="login-phone">Phone number</label>
+              <input id="login-phone" type="tel" autocomplete="username" required />
+            </div>
+            <div class="field-row">
+              <label for="login-pin">6-digit PIN</label>
+              <input id="login-pin" type="password" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="current-password" required />
+            </div>
+            <button type="submit" class="primary-btn">Sign in</button>
+            <p id="login-status" class="form-status" aria-live="polite"></p>
+          </form>
+          <p class="security-note">For this demo, account data stays in this browser and can be changed by anyone with device access. Do not enter real banking details or reuse a real PIN.</p>
+        </div>
+      </section>
+
+      <section id="dashboard-screen" class="screen">
+        <div class="dashboard-panel">
+          <div class="welcome-row">
+            <div>
+              <p class="eyebrow" data-key="greeting">Good morning</p>
+              <h2><span id="user-name">Jane</span></h2>
+            </div>
+
+            <div class="header-actions">
+              <button class="ghost-btn" type="button" id="save-goal-btn" data-key="saveGoalBtn">Save goal</button>
+              <button class="ghost-btn danger" type="button" id="logout-btn" data-key="logoutBtn">Log out</button>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card primary">
+              <div class="card-head">
+                <span data-key="balanceCard">Available to spend</span>
+                <span class="chip success" id="currency-badge">USD</span>
+              </div>
+              <h3 id="display-balance">$0.00</h3>
+              <p data-key="balanceNote">Demo wallet funds</p>
+            </article>
+
+            <article class="stat-card">
+              <div class="card-head">
+                <span data-key="budgetCard">Monthly budget</span>
+                <span class="chip neutral">Target</span>
+              </div>
+              <h3 id="monthly-budget">$0.00</h3>
+              <p data-key="budgetNote">Planned spending limit</p>
+            </article>
+
+            <article class="stat-card">
+              <div class="card-head">
+                <span data-key="spentCard">Spent</span>
+                <span id="budget-state" class="chip neutral" data-key="onTrackBadge">On track</span>
+              </div>
+              <h3 id="spent-total">$0.00</h3>
+              <p id="budget-message" data-key="trackMessage">You are on track this month.</p>
+            </article>
+          </div>
+
+          <div class="content-grid">
+            <div class="card budget-card">
+              <div class="section-title-row">
+                <h3 data-key="trackingTitle">Track spending</h3>
+                <span class="mini-label" data-key="bankLinked">Demo wallet</span>
+              </div>
+
+              <form id="budget-form" class="budget-form">
+                <div class="field-row">
+                  <label for="category" data-key="categoryLabel">Category</label>
+                  <select id="category">
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Health">Health</option>
+                    <option value="School">School</option>
+                    <option value="Family">Family</option>
+                  </select>
+                </div>
+
+                <div class="field-row">
+                  <label for="expense-amount" data-key="amountLabel">Amount</label>
+                  <input id="expense-amount" type="number" min="0" step="10" placeholder="Enter amount" />
+                </div>
+
+                <div class="quick-picks">
+                  <button type="button" class="pick-btn" data-value="50">50</button>
+                  <button type="button" class="pick-btn" data-value="100">100</button>
+                  <button type="button" class="pick-btn" data-value="250">250</button>
+                  <button type="button" class="pick-btn" data-value="500">500</button>
+                </div>
+
+                <button type="submit" class="primary-btn" data-key="addExpenseBtn">Add expense</button>
+              </form>
+
+              <div id="budget-warning" class="warning-box hidden" aria-live="polite"></div>
+            </div>
+
+            <div class="card ai-card">
+              <div class="section-title-row">
+                <h3>BankingGo help</h3>
+                <span class="mini-label">Guided demo assistant</span>
+              </div>
+
+              <div class="ai-chat" id="ai-chat">
+                <div class="message bot">
+                  Hello! I can help you save, spend wisely, and understand your account simply.
+                </div>
+              </div>
+
+              <div class="ai-suggestions">
+                <button type="button" class="suggestion-btn">How do I save?</button>
+                <button type="button" class="suggestion-btn">Am I overspending?</button>
+                <button type="button" class="suggestion-btn">Help me budget</button>
+              </div>
+
+              <div class="ai-input-row">
+                <input id="ai-input" type="text" placeholder="Ask BankingGo..." />
+                <button id="ai-send" type="button" class="primary-btn compact">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tools-grid">
+            <section class="card savings-card" aria-labelledby="savings-title">
+              <div class="section-title-row">
+                <h3 id="savings-title">Savings goal</h3>
+                <span class="mini-label">Your progress</span>
+              </div>
+              <p class="savings-amount"><span id="savings-balance">$0.00</span> saved</p>
+              <progress id="savings-progress" max="100" value="0" aria-label="Savings goal progress"></progress>
+              <p id="savings-summary" class="muted">Set a goal to start tracking your progress.</p>
+              <form id="goal-form" class="inline-form">
+                <label class="visually-hidden" for="goal-amount">Savings goal amount</label>
+                <input id="goal-amount" type="number" min="1" step="1" placeholder="Set a savings goal" required />
+                <button class="primary-btn compact" type="submit">Set goal</button>
+              </form>
+            </section>
+
+            <section class="card transfer-card" aria-labelledby="transfer-title">
+              <div class="section-title-row">
+                <h3 id="transfer-title">Move money to savings</h3>
+                <span class="mini-label">Demo transfer</span>
+              </div>
+              <p class="muted">Move money between your demo wallet and savings. This does not send money to a bank.</p>
+              <form id="transfer-form" class="inline-form">
+                <label class="visually-hidden" for="transfer-amount">Transfer amount</label>
+                <input id="transfer-amount" type="number" min="1" step="1" placeholder="Amount to save" required />
+                <button class="primary-btn compact" type="submit">Move to savings</button>
+              </form>
+              <p id="transfer-status" class="form-status" aria-live="polite"></p>
+            </section>
+          </div>
+
+          <section class="card chart-card" aria-labelledby="spending-chart-title">
+            <div class="section-title-row">
+              <h3 id="spending-chart-title">Spending by category</h3>
+              <span class="mini-label">This month</span>
+            </div>
+            <div id="spending-chart" class="spending-chart" role="img" aria-label="Spending by category"></div>
+          </section>
+
+          <div class="bottom-panel">
+            <div class="card transactions-card">
+              <div class="section-title-row">
+                <h3 data-key="recentActivity">Recent activity</h3>
+                <span class="mini-label" data-key="activityLabel">This week</span>
+              </div>
+
+              <ul id="transactions-list" class="transaction-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="app-footer">© 2026 BankingGo. All rights reserved. Prototype brand notice; this is not legal advice.</footer>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+</html>
